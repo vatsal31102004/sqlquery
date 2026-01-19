@@ -1,0 +1,59 @@
+USE master;
+GO
+
+IF DB_ID('CourseDB') IS NOT NULL
+    ALTER DATABASE CourseDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE CourseDB;
+
+CREATE DATABASE CourseDB;
+USE CourseDB;
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name='edu')
+    EXEC('CREATE SCHEMA edu');
+GO
+
+
+IF OBJECT_ID('edu.UserInfo', 'U') IS NOT NULL
+    DROP TABLE edu.UserInfo;
+GO
+
+IF OBJECT_ID('edu.CourseInfo', 'U') IS NOT NULL
+    DROP TABLE edu.CourseInfo;
+GO
+
+IF OBJECT_ID('edu.EnrollInfo', 'U') IS NOT NULL
+    DROP TABLE edu.EnrollInfo;
+GO
+
+
+CREATE TABLE edu.UserInfo (
+    UID INT IDENTITY PRIMARY KEY,
+    UName NVARCHAR(40),
+    URole NVARCHAR(20)
+);
+
+CREATE TABLE edu.CourseInfo (
+    CID INT IDENTITY PRIMARY KEY,
+    CName NVARCHAR(60),
+    UID INT REFERENCES edu.UserInfo(UID)
+);
+
+CREATE TABLE edu.EnrollInfo (
+    EID INT IDENTITY PRIMARY KEY,
+    UID INT REFERENCES edu.UserInfo(UID),
+    CID INT REFERENCES edu.CourseInfo(CID)
+);
+
+
+INSERT INTO edu.UserInfo VALUES ('Amit', 'Student'), ('Riya', 'Teacher');
+INSERT INTO edu.CourseInfo VALUES ('Java', 2), ('Web', 2);
+INSERT INTO edu.EnrollInfo VALUES (1, 1);
+
+
+UPDATE edu.UserInfo SET UName='Amit Patel' WHERE UID=1;
+DELETE FROM edu.EnrollInfo WHERE EID=1;
+
+SELECT * FROM edu.UserInfo;
+SELECT * FROM edu.CourseInfo;
+SELECT * FROM edu.EnrollInfo;
